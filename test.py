@@ -1,5 +1,2 @@
-import requests
-
-x = requests.get('https://w3schools.com/python/demopage.htm')
-
-print(x.text)
+list_t='123'
+print(int(list_t))
