@@ -1,2 +1,3 @@
-list_t='123'
-print(int(list_t))
+l=[{'ali':'mo'}]
+if 'ali' in l[0].keys():
+    print('yr')
