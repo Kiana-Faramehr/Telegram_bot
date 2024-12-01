@@ -122,7 +122,7 @@ async def email(update: Update, contex: ContextTypes.DEFAULT_TYPE):
             [KeyboardButton('❓ Help and Support'),KeyboardButton('💾 Saved Results')],
             [KeyboardButton('📋 View Profile'),KeyboardButton('🧑‍🏫 Search Supervisors')]]
 
-    if ".com" in update.message.text and "@" in update.message.text:
+    if "." in update.message.text and "@" in update.message.text:
         contex.user_data['email']=update.message.text
         data_info[data_id[update.effective_chat.id]]['email']=update.message.text
         await contex.bot.send_message(chat_id=update.effective_chat.id,
