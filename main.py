@@ -31,7 +31,7 @@ async def start(update: Update, contex: ContextTypes.DEFAULT_TYPE):
     else:
         l=len(data_id)
         data_id.update({update.effective_chat.id:l})
-        data_info.append({})
+        data_info.append({'name':'☆Not Entered☆','last_name':'☆Not Entered☆','phone_number':'☆Not Entered☆','email':'☆Not Entered☆'})
         data_saved.append([])
         
     #buttons
@@ -77,7 +77,8 @@ async def user(update: Update, contex: ContextTypes.DEFAULT_TYPE):
     return NAME
 
 async def name(update: Update, contex: ContextTypes.DEFAULT_TYPE):
-    global user_info
+    global data_info
+    global data_id
     global key
     key=2
     keys=[[KeyboardButton('❌ Cancel')]]
@@ -89,7 +90,8 @@ async def name(update: Update, contex: ContextTypes.DEFAULT_TYPE):
     return LAST_NAME
 
 async def last_name(update: Update, contex: ContextTypes.DEFAULT_TYPE):
-    global user_info
+    global data_info
+    global data_id
     global key
     key=3
     keys=[[KeyboardButton('❌ Cancel')]]
@@ -102,7 +104,8 @@ async def last_name(update: Update, contex: ContextTypes.DEFAULT_TYPE):
 
 async def phone_number(update: Update, contex: ContextTypes.DEFAULT_TYPE):
     global key
-    global user_info
+    global data_info
+    global data_id
     key=4
     keys=[[KeyboardButton('❌ Cancel')]]
     contex.user_data['phone_number']=update.message.text
@@ -116,7 +119,6 @@ async def phone_number(update: Update, contex: ContextTypes.DEFAULT_TYPE):
 async def email(update: Update, contex: ContextTypes.DEFAULT_TYPE):
     global data_info
     global key
-    global user_info
     global data_id
     keys=[  [KeyboardButton('👤 User Profile')],
             [KeyboardButton('❓ Help and Support'),KeyboardButton('💾 Saved Results')],
@@ -139,8 +141,9 @@ async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE):
             [KeyboardButton('❓ Help and Support'),KeyboardButton('💾 Saved Results')],
             [KeyboardButton('📋 View Profile'),KeyboardButton('🧑‍🏫 Search Supervisors')]]
     global key
+    global data_info
+    global data_id
     key=0
-    data_info[data_id[update.effective_chat.id]]={}
     await context.bot.send_message(chat_id=update.effective_chat.id,
             text="Login cancelled.",
             reply_markup=ReplyKeyboardMarkup(keys, resize_keyboard=True))
@@ -151,12 +154,9 @@ async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def view(update: Update, contex: ContextTypes.DEFAULT_TYPE):
     global data_info
-    if len(data_info[data_id[update.effective_chat.id]])==0:
-        await contex.bot.send_message(chat_id=update.effective_chat.id,
-            text='You have not logged in yet')
-    else:
-        await contex.bot.send_message(chat_id=update.effective_chat.id,
-                text=f"Your Profile: \n👤 First Name: {data_info[data_id[update.effective_chat.id]]['name']}\n👤 Last Name: {data_info[data_id[update.effective_chat.id]]['last_name']}\n📱 Phone Number: {data_info[data_id[update.effective_chat.id]]['phone_number']}\n📧 Email: {data_info[data_id[update.effective_chat.id]]['email']}")
+    global data_id
+    await contex.bot.send_message(chat_id=update.effective_chat.id,
+        text=f"Your Profile: \n👤 First Name: {data_info[data_id[update.effective_chat.id]]['name']}\n👤 Last Name: {data_info[data_id[update.effective_chat.id]]['last_name']}\n📱 Phone Number: {data_info[data_id[update.effective_chat.id]]['phone_number']}\n📧 Email: {data_info[data_id[update.effective_chat.id]]['email']}")
 
 #//////////////////////////  Supervisor
 
@@ -237,9 +237,11 @@ async def controller(update: Update, contex: ContextTypes.DEFAULT_TYPE):
 #///////////////     saved
 
 async def saved(update: Update, contex: ContextTypes.DEFAULT_TYPE):
+    global data_info
+    global data_id
+    global data_saved
     await contex.bot.send_message(chat_id=update.effective_chat.id,
             text="Your saved results:")
-    global data_saved
     if len(data_saved[data_id[update.effective_chat.id]])==0:
         await contex.bot.send_message(chat_id=update.effective_chat.id,
             text="Your saved result list is empty")
@@ -254,7 +256,9 @@ async def saved(update: Update, contex: ContextTypes.DEFAULT_TYPE):
 #////////////////// callback_query
 
 async def callback_query_handler(update: Update, contex: ContextTypes.DEFAULT_TYPE):
-
+    global data_saved
+    global data_info
+    global data_id
     dt=data()
     query=update.callback_query
     call_back_data=query.data
