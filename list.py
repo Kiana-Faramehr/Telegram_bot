@@ -1,5 +1,5 @@
 def data():
-    list_doc=[
+    list_compuer_science=[
 
     """
 👨‍🏫 Supervisor Information
@@ -498,4 +498,4 @@ Funding provider(s):   EPSRC and Faculty of Science and Engineering  . Subj
 
 
     ]
-    return list_doc
+    return list_compuer_science

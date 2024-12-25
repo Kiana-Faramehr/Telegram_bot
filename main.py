@@ -13,17 +13,15 @@ BOT_USERNAME: Final='@abroadin_apply_bot'
 
 NAME, LAST_NAME, EMAIL, NUMBER =range(4)
 user_info={'name':'','last_name':'','phone_number':'','email':''}
-user_saved=[]
-data_saved=[]
-data_info=[]
-data_id={}
+data_saved=[]             #saved supervisors
+data_info=[]              #user information(name,....)
+data_id={}                #user chat id and number
 
 key=0
 
 #///////////////////    Start
 
-async def start(update: Update, contex: ContextTypes.DEFAULT_TYPE):
-    global data_id
+async def start(update: Update, contex: ContextTypes.DEFAULT_TYPE,data_id=data_id):
     if update.effective_chat.id in data_id.keys():
 
         print("yes")
@@ -76,9 +74,7 @@ async def user(update: Update, contex: ContextTypes.DEFAULT_TYPE):
         reply_markup=ReplyKeyboardMarkup(keys, resize_keyboard=True))
     return NAME
 
-async def name(update: Update, contex: ContextTypes.DEFAULT_TYPE):
-    global data_info
-    global data_id
+async def name(update: Update, contex: ContextTypes.DEFAULT_TYPE,data_info=data_info,data_id=data_id):
     global key
     key=2
     keys=[[KeyboardButton('❌ Cancel')]]
@@ -89,9 +85,7 @@ async def name(update: Update, contex: ContextTypes.DEFAULT_TYPE):
         reply_markup=ReplyKeyboardMarkup(keys, resize_keyboard=True))
     return LAST_NAME
 
-async def last_name(update: Update, contex: ContextTypes.DEFAULT_TYPE):
-    global data_info
-    global data_id
+async def last_name(update: Update, contex: ContextTypes.DEFAULT_TYPE,data_info=data_info,data_id=data_id):
     global key
     key=3
     keys=[[KeyboardButton('❌ Cancel')]]
@@ -102,10 +96,8 @@ async def last_name(update: Update, contex: ContextTypes.DEFAULT_TYPE):
         reply_markup=ReplyKeyboardMarkup(keys, resize_keyboard=True))
     return NUMBER
 
-async def phone_number(update: Update, contex: ContextTypes.DEFAULT_TYPE):
+async def phone_number(update: Update, contex: ContextTypes.DEFAULT_TYPE,data_info=data_info,data_id=data_id):
     global key
-    global data_info
-    global data_id
     key=4
     keys=[[KeyboardButton('❌ Cancel')]]
     contex.user_data['phone_number']=update.message.text
@@ -116,10 +108,8 @@ async def phone_number(update: Update, contex: ContextTypes.DEFAULT_TYPE):
         reply_markup=ReplyKeyboardMarkup(keys, resize_keyboard=True))
     return EMAIL
 
-async def email(update: Update, contex: ContextTypes.DEFAULT_TYPE):
-    global data_info
+async def email(update: Update, contex: ContextTypes.DEFAULT_TYPE,data_info=data_info,data_id=data_id):
     global key
-    global data_id
     keys=[  [KeyboardButton('👤 User Profile')],
             [KeyboardButton('❓ Help and Support'),KeyboardButton('💾 Saved Results')],
             [KeyboardButton('📋 View Profile'),KeyboardButton('🧑‍🏫 Search Supervisors')]]
@@ -136,13 +126,11 @@ async def email(update: Update, contex: ContextTypes.DEFAULT_TYPE):
         await phone_number(update,contex)
 
 #//////////
-async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE,data_info=data_info,data_id=data_id):
+    global key
     keys=[  [KeyboardButton('👤 User Profile')],
             [KeyboardButton('❓ Help and Support'),KeyboardButton('💾 Saved Results')],
             [KeyboardButton('📋 View Profile'),KeyboardButton('🧑‍🏫 Search Supervisors')]]
-    global key
-    global data_info
-    global data_id
     key=0
     await context.bot.send_message(chat_id=update.effective_chat.id,
             text="Login cancelled.",
@@ -152,9 +140,7 @@ async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 #////////////////////// View Profile
 
-async def view(update: Update, contex: ContextTypes.DEFAULT_TYPE):
-    global data_info
-    global data_id
+async def view(update: Update, contex: ContextTypes.DEFAULT_TYPE,data_info=data_info,data_id=data_id):
     await contex.bot.send_message(chat_id=update.effective_chat.id,
         text=f"Your Profile: \n👤 First Name: {data_info[data_id[update.effective_chat.id]]['name']}\n👤 Last Name: {data_info[data_id[update.effective_chat.id]]['last_name']}\n📱 Phone Number: {data_info[data_id[update.effective_chat.id]]['phone_number']}\n📧 Email: {data_info[data_id[update.effective_chat.id]]['email']}")
 
@@ -163,18 +149,36 @@ async def view(update: Update, contex: ContextTypes.DEFAULT_TYPE):
 async def supervisors(update: Update, contex: ContextTypes.DEFAULT_TYPE):
     
     #buttons
-    keys=[[KeyboardButton('Computer Science'),KeyboardButton('Main Menu')]]
+    #keys=[[KeyboardButton('Computer Science'),KeyboardButton('Main Menu')]]
+    keys=[[KeyboardButton('🧑‍🎓By major'),KeyboardButton('🏙By Country')],[KeyboardButton('Main Menu')]]
     await contex.bot.send_message(chat_id=update.effective_chat.id,
-        text="To see a list of supervisors, please enter your field of study.",
+        text="Please indicate which way you want to search for supervisors",
         reply_markup=ReplyKeyboardMarkup(keys, resize_keyboard=True))
+    
+async def by_country(update: Update, contex: ContextTypes.DEFAULT_TYPE):
+    keys=[[KeyboardButton('Canada'),KeyboardButton('Main Menu')]]
+    await contex.bot.send_message(chat_id=update.effective_chat.id,
+        text="Please enter the name of the country.",
+        reply_markup=ReplyKeyboardMarkup(keys, resize_keyboard=True))
+    
+
+async def by_major(update: Update, contex: ContextTypes.DEFAULT_TYPE):
+    keys=[[KeyboardButton('Computer science'),KeyboardButton('Main Menu')]]
+    await contex.bot.send_message(chat_id=update.effective_chat.id,
+        text="To see a list of supervisors, please enter your major of study.",
+        reply_markup=ReplyKeyboardMarkup(keys, resize_keyboard=True))
+
 
 #///////////////    Majors
 
-async def computer_science(update: Update, contex: ContextTypes.DEFAULT_TYPE):
+async def computer_science(update: Update, contex: ContextTypes.DEFAULT_TYPE,data_id=data_id,data_saved=data_saved):
 
     dt=data()
-    for i in range(len(data())-1,-1,-1):
-        button_list=[[InlineKeyboardButton('save',callback_data=f's{i}')]]
+    for i in range(len(data())):
+        if dt[i] in data_saved[data_id[update.effective_chat.id]]:
+            button_list=[[InlineKeyboardButton('Exists in your saved list. click to remove',callback_data=f'd{i}')]]
+        else:
+            button_list=[[InlineKeyboardButton('save',callback_data=f's{i}')]]
         await contex.bot.send_message(chat_id=update.effective_chat.id,
             text=dt[i],
             parse_mode=ParseMode.HTML,
@@ -213,6 +217,10 @@ async def controller(update: Update, contex: ContextTypes.DEFAULT_TYPE):
             await menu(update,contex)
         if msg=="📋 View Profile":
             await view(update,contex)
+        if msg=="🧑‍🎓By major":
+            await by_major(update,contex)
+        if msg=="🏙By Country":
+            await by_country(update,contex)
     elif key==1:
         if msg=='❌ Cancel':
             await cancel(update,contex)
@@ -236,10 +244,7 @@ async def controller(update: Update, contex: ContextTypes.DEFAULT_TYPE):
 
 #///////////////     saved
 
-async def saved(update: Update, contex: ContextTypes.DEFAULT_TYPE):
-    global data_info
-    global data_id
-    global data_saved
+async def saved(update: Update, contex: ContextTypes.DEFAULT_TYPE,data_info=data_info,data_id=data_id,data_saved=data_saved):
     await contex.bot.send_message(chat_id=update.effective_chat.id,
             text="Your saved results:")
     if len(data_saved[data_id[update.effective_chat.id]])==0:
@@ -255,22 +260,34 @@ async def saved(update: Update, contex: ContextTypes.DEFAULT_TYPE):
 
 #////////////////// callback_query
 
-async def callback_query_handler(update: Update, contex: ContextTypes.DEFAULT_TYPE):
-    global data_saved
-    global data_info
-    global data_id
+async def callback_query_handler(update: Update, contex: ContextTypes.DEFAULT_TYPE,data_info=data_info,data_id=data_id,data_saved=data_saved):
     dt=data()
     query=update.callback_query
     call_back_data=query.data
     if call_back_data[0]=='s':
         call_back_data=call_back_data[1:len(call_back_data)]
         data_saved[data_id[update.effective_chat.id]].append(dt[int(call_back_data)])
+        button_list=[[InlineKeyboardButton('Exists in your saved list. click to remove',callback_data=f'd{int(call_back_data)}')]]
+        await query.edit_message_text(
+            text=dt[int(call_back_data)],
+            parse_mode=ParseMode.HTML,
+            reply_markup=InlineKeyboardMarkup(button_list))
+
     elif call_back_data[0]=='r':
         call_back_data=call_back_data[1:len(call_back_data)]
         data_saved[data_id[update.effective_chat.id]].pop(int(call_back_data))
         await saved(update,contex)
+
+    elif call_back_data[0]=='d':
+        call_back_data=call_back_data[1:len(call_back_data)]
+        data_saved[data_id[update.effective_chat.id]].remove(dt[int(call_back_data)])
+        button_list=[[InlineKeyboardButton('save',callback_data=f's{int(call_back_data)}')]]
+        await query.edit_message_text(
+            text=dt[int(call_back_data)],
+            parse_mode=ParseMode.HTML,
+            reply_markup=InlineKeyboardMarkup(button_list))
     await query.answer()
-    await query.message(text="Saved")
+
 
 
  #//////////////////////////   
